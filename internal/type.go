@@ -10,6 +10,7 @@ type Model struct {
 	termWidth  int
 	termHeight int
 	state      domain.AppState
+	filtered   []domain.SSHHost
 	dashboard  dashboard.Model
 	sshInfo    sshinfo.Model
 	sshArgs    []string

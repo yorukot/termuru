@@ -8,9 +8,12 @@ import (
 
 func IntinalModel() Model {
 	state := domain.AppState{Hosts: mockHosts()}
+	filtered := make([]domain.SSHHost, len(state.Hosts))
+	copy(filtered, state.Hosts)
 
 	return Model{
 		state:     state,
+		filtered:  filtered,
 		dashboard: dashboard.NewModel(),
 		sshInfo:   sshinfo.NewModel(),
 	}

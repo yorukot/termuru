@@ -16,6 +16,8 @@ func (m Model) Render(hosts []domain.SSHHost, termWidth, termHeight int) string 
 	// Title Render
 	b.WriteString(styles.DashboardTitle.Render("Termuru SSH Dashboard"))
 	b.WriteString("\n")
+	b.WriteString(renderSearchBar(m))
+	b.WriteString("\n")
 
 	// Content Render
 	if len(hosts) == 0 {
@@ -71,8 +73,12 @@ func (m Model) Render(hosts []domain.SSHHost, termWidth, termHeight int) string 
 	return content
 }
 
+func renderSearchBar(m Model) string {
+	return fmt.Sprintf("%s", icon.Search+" "+m.searchBar.View())
+}
+
 func renderHelpBar(b *strings.Builder) {
-	helpText := "j/k/up/down or wheel: move  |  enter: connect  |  q: quit"
+	helpText := "/: search  |  esc/ctrl+c: cancel input  |  j/k/up/down or wheel: move  |  enter: connect  |  q: quit"
 	helpStyle := styles.HelpMenu
 	b.WriteString(helpStyle.Render(helpText))
 }

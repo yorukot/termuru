@@ -8,16 +8,16 @@ import (
 )
 
 func (m Model) selectedHost() *domain.SSHHost {
-	if len(m.state.Hosts) == 0 {
+	if len(m.filtered) == 0 {
 		return nil
 	}
 
 	cursor := m.dashboard.Cursor()
-	if cursor < 0 || cursor >= len(m.state.Hosts) {
+	if cursor < 0 || cursor >= len(m.filtered) {
 		return nil
 	}
 
-	return &m.state.Hosts[cursor]
+	return &m.filtered[cursor]
 }
 
 func sshArgsFromHost(s domain.SSHHost) []string {

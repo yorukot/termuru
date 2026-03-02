@@ -28,7 +28,7 @@ func resolveLayout(termWidth, termHeight int) viewLayout {
 		minInfoHeight = 11
 	)
 
-	infoWidth := maxInt(minInfoWidth, termWidth/3)
+	infoWidth := max(minInfoWidth, termWidth/3)
 	listWidth := termWidth - infoWidth
 	if listWidth >= minListWidth {
 		return viewLayout{
@@ -40,7 +40,7 @@ func resolveLayout(termWidth, termHeight int) viewLayout {
 		}
 	}
 
-	infoHeight := maxInt(minInfoHeight, termHeight/3)
+	infoHeight := max(minInfoHeight, termHeight/3)
 	listHeight := termHeight - infoHeight
 	if listHeight >= minListHeight {
 		return viewLayout{
@@ -57,11 +57,4 @@ func resolveLayout(termWidth, termHeight int) viewLayout {
 		listWidth:  termWidth,
 		listHeight: termHeight,
 	}
-}
-
-func maxInt(a, b int) int {
-	if a > b {
-		return a
-	}
-	return b
 }
