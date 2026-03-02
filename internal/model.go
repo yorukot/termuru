@@ -1,40 +1,62 @@
 package internal
 
 import (
-	"fmt"
+	"slices"
 
 	tea "charm.land/bubbletea/v2"
+	"charm.land/lipgloss/v2"
+
+	"github.com/yorukot/termuru/internal/settings"
 )
-
-type Model struct {
-	count int
-}
-
-func IntinalModel() Model {
-	return Model{count: 0}
-}
 
 func (m Model) Init() tea.Cmd { return nil }
 
 func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	switch msg := msg.(type) {
 	case tea.KeyPressMsg:
-		switch msg.String() {
-		case "q", "ctrl+c":
+		key := msg.String()
+		switch {
+		case slices.Contains(settings.Hotkey.Quit, key):
 			return m, tea.Quit
-		case "up":
-			m.count++
-		case "down":
-			m.count--
+		case slices.Contains(settings.Hotkey.Select, key):
+			return m, m.enterSSHCard()
 		}
+	case tea.WindowSizeMsg:
+		m.termWidth = msg.Width
+		m.termHeight = msg.Height
 	}
-	return m, nil
+
+	layout := resolveLayout(m.termWidth, m.termHeight)
+	nextDashboard, cmd := m.dashboard.Update(
+		msg,
+		len(m.state.Hosts),
+		layout.listWidth,
+		layout.listHeight,
+	)
+	m.dashboard = nextDashboard
+
+	return m, cmd
 }
 
 func (m Model) View() tea.View {
-	s := fmt.Sprintf("Count: %d\nPress up/down to change. q to quit.\n", m.count)
+	layout := resolveLayout(m.termWidth, m.termHeight)
+	selectedHost := m.selectedHost()
 
-	v := tea.NewView(s)
-	v.AltScreen = true
+	listPanel := m.dashboard.Render(m.state.Hosts, layout.listWidth, layout.listHeight)
+
+	var content string
+	switch layout.placement {
+	case placementRight:
+		infoPanel := m.sshInfo.Render(selectedHost, layout.infoWidth, layout.infoHeight)
+		content = lipgloss.JoinHorizontal(lipgloss.Top, listPanel, infoPanel)
+	case placementBottom:
+		infoPanel := m.sshInfo.Render(selectedHost, layout.infoWidth, layout.infoHeight)
+		content = lipgloss.JoinVertical(lipgloss.Left, listPanel, infoPanel)
+	default:
+		content = listPanel
+	}
+
+	v := tea.NewView(content)
+	v.MouseMode = tea.MouseModeCellMotion
 	return v
 }
